@@ -12,8 +12,8 @@ public class SampleTests
         // Can't use BaseDay since some of them aren't days, but you probably can
         if (Activator.CreateInstance(type) is BaseProblem instance)
         {
-            Assert.AreEqual(sol1, await instance.Solve_1());
-            Assert.AreEqual(sol2, await instance.Solve_2());
+            Assert.That(await instance.Solve_1(), Is.EqualTo(sol1));
+            Assert.That(await instance.Solve_2(), Is.EqualTo(sol2));
         }
         else
         {
