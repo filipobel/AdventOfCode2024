@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace AdventOfCode;
+namespace AdventOfCode.Days;
 
-public class Day01 : BaseDay
+public class Day01 : TestableBaseDay
 {
     private readonly string _input;
 
