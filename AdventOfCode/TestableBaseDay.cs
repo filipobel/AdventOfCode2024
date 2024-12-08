@@ -10,6 +10,6 @@ public abstract class TestableBaseDay : BaseDay
 {
     protected override string InputFileDirPath =>
         Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!,
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly()!.Location)!,
             base.InputFileDirPath);
 }
