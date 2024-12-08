@@ -48,7 +48,6 @@ public class Day03 : TestableBaseDay
             }
         }
 
-
         return new(answer.ToString());
     }
 

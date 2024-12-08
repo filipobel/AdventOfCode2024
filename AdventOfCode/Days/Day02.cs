@@ -8,26 +8,25 @@ namespace AdventOfCode.Days;
 
 public class Day02 : TestableBaseDay
 {
-    private readonly string _input;
-    private List<List<int>> reports = new List<List<int>>();
+    private readonly List<List<int>> _reports = new List<List<int>>();
     public Day02()
     {
-        _input = File.ReadAllText(InputFilePath);
+        var input = File.ReadAllText(InputFilePath);
 
-        foreach (string line in _input.Split("\n"))
+        foreach (string line in input.Split("\n"))
         {
-            reports.Add(line.Split(" ").Select(s => int.Parse(s)).ToList());
+            _reports.Add(line.Split(" ").Select(s => int.Parse(s)).ToList());
         }
     }
     public override ValueTask<string> Solve_1()
     {
-        return new (reports.Count(Valid).ToString());
+        return new (_reports.Count(Valid).ToString());
     }
 
     public override ValueTask<string> Solve_2()
     {
-        int answer = 0;
-        foreach (var report in reports)
+        var answer = 0;
+        foreach (var report in _reports)
         {
             if (Valid(report))
             {  
@@ -35,7 +34,7 @@ public class Day02 : TestableBaseDay
                 continue;
             }
 
-            for (int i = 0; i < report.Count; i++)
+            for (var i = 0; i < report.Count; i++)
             {
                 List<int> reportToDampen = new(report);
                 reportToDampen.RemoveAt(i);

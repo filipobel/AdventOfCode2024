@@ -14,24 +14,22 @@ namespace AdventOfCode.Days;
 
 public class Day04 : TestableBaseDay
 {
-    private readonly string _input;
     private readonly Map _map;
 
-    (int, int) Up = (-1,0);
-    (int, int) UpRight = (-1, 1);
-    (int, int) Right = (0, 1);
-    (int, int) DownRight = (1, 1);
+    private readonly (int, int) _up = (-1,0);
+    private readonly(int, int) _upRight = (-1, 1);
+    private readonly(int, int) _right = (0, 1);
+    private readonly (int, int) _downRight = (1, 1);
 
     public Day04()
     {
-        _input = File.ReadAllText(InputFilePath);
-        _map = GetMap(_input);
+        _map = GetMap(File.ReadAllText(InputFilePath));
     }
     public override ValueTask<string> Solve_1()
     {
 
         var answer = (from location in _map.Keys
-                      from direction in new[] { Up, UpRight, Right, DownRight }
+                      from direction in new[] { _up, _upRight, _right, _downRight }
                       where Matches(_map, location, direction, "XMAS")
                       select 1).Count();
 
@@ -41,8 +39,8 @@ public class Day04 : TestableBaseDay
     public override ValueTask<string> Solve_2()
     {
         var answer = (from location in _map.Keys
-                      where Matches(_map, location, DownRight, "MAS")
-                        && Matches(_map, (location.Item1 +2, location.Item2), UpRight, "MAS")
+                      where Matches(_map, location, _downRight, "MAS")
+                        && Matches(_map, (location.Item1 +2, location.Item2), _upRight, "MAS")
                         select 1).Count();
 
         return new(answer.ToString());
@@ -54,7 +52,7 @@ public class Day04 : TestableBaseDay
             Select(i => map.GetValueOrDefault((location.Item1 + i*direction.Item1, location.Item2 + i*direction.Item2))).
             ToArray();
 
-        return Enumerable.SequenceEqual(chars, pattern) || Enumerable.SequenceEqual(chars, pattern.Reverse());
+        return chars.SequenceEqual(pattern) || chars.SequenceEqual(pattern.Reverse());
     }
 
     public Map GetMap(string input)
