@@ -17,9 +17,6 @@ public class Day06 : TestableBaseDay
     private readonly (int, int) _start;
 
     private readonly (int, int) _up = (-1, 0);
-    private readonly (int, int) _right = (0, 1);
-    private readonly (int, int) _left = (0, -1);
-    private readonly (int, int) _down = (1, 0);
 
     public Day06()
     {
@@ -29,14 +26,27 @@ public class Day06 : TestableBaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        Walk(_start, _up);
+        var visited = Walk(_start, _up);
 
-        return new(_map.Where(x => x.Value == 'X').Count().ToString());
+        return new(visited.Distinct().Count().ToString());
     }
 
     public override ValueTask<string> Solve_2()
     {
-        return new("");
+        var visited = Walk(_start, _up).Distinct();
+
+        var loops = 0;
+
+        foreach (var testPosition in visited.Where(pos => _map[pos] == '.'))
+        {
+            _map[testPosition] = '#';
+            if (IsBlocked(_map, _start, _up))
+            {
+                loops++;
+            }
+            _map[testPosition] = '.';
+        }
+        return new(loops.ToString());
     }
 
     public Map GetMap(string input)
@@ -50,11 +60,32 @@ public class Day06 : TestableBaseDay
             ).ToDictionary();
     }
 
-    private void Walk((int,int) currentPosition, (int,int) direction)
+    private bool IsBlocked(Map _map, (int, int) currentPosition, (int, int) direction)
     {
+        var visited = new HashSet<((int, int) position, (int,int) direction)>();
+        while (_map.ContainsKey(currentPosition) && !visited.Contains((currentPosition,direction)))
+        {
+            visited.Add((currentPosition, direction));
+
+            if (_map.GetValueOrDefault(currentPosition.AddTuple(direction)) == '#')
+            {
+                direction = RotateClockwise(direction);
+            }
+            else
+            {
+                currentPosition = currentPosition.AddTuple(direction);
+            }
+        }
+
+        return visited.Contains((currentPosition, direction));
+    }
+
+    private HashSet<(int, int)> Walk((int,int) currentPosition, (int,int) direction)
+    {
+        var visited = new HashSet<(int, int)>();
         while (_map.ContainsKey(currentPosition))
         {
-            _map[currentPosition] = 'X';
+            visited.Add(currentPosition);
 
             if (_map.GetValueOrDefault(currentPosition.AddTuple(direction)) == '#')
             {
@@ -65,23 +96,12 @@ public class Day06 : TestableBaseDay
                 currentPosition = currentPosition.AddTuple(direction);
             } 
         }
+
+        return visited;
     }
 
     private (int,int) RotateClockwise((int,int) point)
     {
         return (point.Item2, -point.Item1);
-    }
-
-    private void PrintMap(int size)
-    {
-        Console.WriteLine();
-        foreach (var y in Enumerable.Range(0, size))
-        {
-            foreach (var x in Enumerable.Range(0, size))
-            {
-                Console.Write(_map.GetValueOrDefault((y,x)));
-            }
-             Console.WriteLine();
-        }
     }
 }
