@@ -1,15 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Data.Common;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-using Map = System.Collections.Immutable.ImmutableDictionary<(int, int), char>;
-
 namespace AdventOfCode.Days;
 
 public class Day04 : TestableBaseDay
@@ -23,7 +14,7 @@ public class Day04 : TestableBaseDay
 
     public Day04()
     {
-        _map = GetMap(File.ReadAllText(InputFilePath));
+        _map = File.ReadAllText(InputFilePath).GetMap();
     }
     public override ValueTask<string> Solve_1()
     {
@@ -53,17 +44,6 @@ public class Day04 : TestableBaseDay
             ToArray();
 
         return chars.SequenceEqual(pattern) || chars.SequenceEqual(pattern.Reverse());
-    }
-
-    public Map GetMap(string input)
-    {
-        var stringMap = input.Split("\r\n");
-
-        return (
-            from y in Enumerable.Range(0, stringMap.Length)
-            from x in Enumerable.Range(0,stringMap[0].Length)
-            select new KeyValuePair<(int, int), char>((y,x), stringMap[y][x]) 
-            ).ToImmutableDictionary();
     }
 
 }
