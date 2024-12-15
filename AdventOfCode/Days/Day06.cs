@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-using Map = System.Collections.Generic.Dictionary<(int, int), char>;
+﻿using System.Collections.Immutable;
 
 namespace AdventOfCode.Days;
 public class Day06 : TestableBaseDay
@@ -20,7 +10,7 @@ public class Day06 : TestableBaseDay
 
     public Day06()
     {
-        _map = GetMap(File.ReadAllText(InputFilePath));
+        _map = File.ReadAllText(InputFilePath).GetMap();
         _start = _map.First(x => x.Value == '^').Key;
     }
 
@@ -47,17 +37,6 @@ public class Day06 : TestableBaseDay
             _map[testPosition] = '.';
         }
         return new(loops.ToString());
-    }
-
-    public Map GetMap(string input)
-    {
-        var stringMap = input.Split("\r\n");
-
-        return (
-            from y in Enumerable.Range(0, stringMap.Length)
-            from x in Enumerable.Range(0, stringMap[0].Length)
-            select new KeyValuePair<(int, int), char>((y, x), stringMap[y][x])
-            ).ToDictionary();
     }
 
     private bool IsBlocked(Map _map, (int, int) currentPosition, (int, int) direction)
