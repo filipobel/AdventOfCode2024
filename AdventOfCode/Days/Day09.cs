@@ -11,13 +11,14 @@ record struct Block(int fileId, int length) { }
 public class Day09 : TestableBaseDay
 {
     private LinkedList<Block> blocks;
+    private string input;
     public Day09()
     {
-        var input = File.ReadAllText(InputFilePath);
-        blocks = new LinkedList<Block>(input.Select((ch, i) => new Block(i % 2 == 1 ? -1 : i / 2, ch - '0')));
+        input = File.ReadAllText(InputFilePath);
     }
     public override ValueTask<string> Solve_1()
     {
+        blocks = new LinkedList<Block>(input.Select((ch, i) => new Block(i % 2 == 1 ? -1 : i / 2, ch - '0')));
         var (i, j) = (blocks.First, blocks.Last);
         while (i != j)
         {
@@ -42,7 +43,26 @@ public class Day09 : TestableBaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        throw new NotImplementedException();
+        blocks = new LinkedList<Block>(input.Select((ch, i) => new Block(i % 2 == 1 ? -1 : i / 2, ch - '0')));
+        var (i, j) = (blocks.First, blocks.Last);
+        while (i != j)
+        {
+            if (i.Value.fileId != -1)
+            {
+                i = i.Next;
+            }
+            else if (j.Value.fileId == -1)
+            {
+                j = j.Previous;
+            }
+            else
+            {
+                RelocateBlocks(i, j, false);
+                j = j.Previous;
+
+            }
+        }
+        return new(GetBlocksValue().ToString());
     }
 
     private long GetBlocksValue()
