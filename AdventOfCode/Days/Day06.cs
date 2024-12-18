@@ -6,8 +6,6 @@ public class Day06 : TestableBaseDay
     private readonly Map _map;
     private readonly (int, int) _start;
 
-    private readonly (int, int) _up = (-1, 0);
-
     public Day06()
     {
         _map = File.ReadAllText(InputFilePath).GetMap();
@@ -16,21 +14,21 @@ public class Day06 : TestableBaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        var visited = Walk(_start, _up);
+        var visited = Walk(_start, MapExtensions.UP);
 
         return new(visited.Distinct().Count().ToString());
     }
 
     public override ValueTask<string> Solve_2()
     {
-        var visited = Walk(_start, _up).Distinct();
+        var visited = Walk(_start, MapExtensions.UP).Distinct();
 
         var loops = 0;
 
         foreach (var testPosition in visited.Where(pos => _map[pos] == '.'))
         {
             _map[testPosition] = '#';
-            if (IsBlocked(_map, _start, _up))
+            if (IsBlocked(_map, _start, MapExtensions.UP))
             {
                 loops++;
             }

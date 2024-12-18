@@ -9,7 +9,6 @@ public class Day08 : TestableBaseDay
 {
     private readonly Map _map;
 
-
     public Day08()
     {
         _map = File.ReadAllText(InputFilePath).GetMap();
