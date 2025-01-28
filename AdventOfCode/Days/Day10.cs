@@ -1,21 +1,16 @@
 ﻿namespace AdventOfCode.Days;
-public class Day10 : TestableBaseDay
+public class Day10 : MapableTestableBaseDay
 {
-    private readonly Map _map;
-    public Day10()
-    {
-        _map = File.ReadAllText(InputFilePath).GetMap();
-    }
     public override ValueTask<string> Solve_1()
     {
-        var trailHeads = _map.Keys.Where(x => _map[x] == '0');
+        var trailHeads = map.Keys.Where(x => map[x] == '0');
         var trails = trailHeads.ToDictionary(t => t, t => GetTrailsFrom(t)).Sum(t => t.Value.Distinct().Count());
         return new(trails.ToString());
     }
 
     public override ValueTask<string> Solve_2()
     {
-        var trailHeads = _map.Keys.Where(x => _map[x] == '0');
+        var trailHeads = map.Keys.Where(x => map[x] == '0');
         var trails = trailHeads.ToDictionary(t => t, t => GetTrailsFrom(t));
         return new(trails.Sum(t => t.Value.Count()).ToString());
     }
@@ -29,7 +24,7 @@ public class Day10 : TestableBaseDay
         while (positionsToCheck.Any())
         {
             var currentPoint = positionsToCheck.Dequeue();
-            if (_map[currentPoint] == '9')
+            if (map[currentPoint] == '9')
             {
                 trails.Add(currentPoint);
             }
@@ -37,8 +32,8 @@ public class Day10 : TestableBaseDay
             {
                 foreach (var direction in new[] { MapExtensions.UP, MapExtensions.RIGHT, MapExtensions.DOWN, MapExtensions.LEFT })
                 {
-                    var pointToCheck = currentPoint.AddTuple(direction);
-                    if (_map.GetValueOrDefault(pointToCheck) == _map[currentPoint] + 1)
+                    var pointToCheck = AddTuple(currentPoint,direction);
+                    if (map.GetValueOrDefault(pointToCheck) == map[currentPoint] + 1)
                         positionsToCheck.Enqueue(pointToCheck);
                 }
             }

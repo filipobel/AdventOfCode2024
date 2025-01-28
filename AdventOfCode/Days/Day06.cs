@@ -1,15 +1,13 @@
 ﻿using System.Collections.Immutable;
 
 namespace AdventOfCode.Days;
-public class Day06 : TestableBaseDay
+public class Day06 : MapableTestableBaseDay
 {
-    private readonly Map _map;
     private readonly (int, int) _start;
 
-    public Day06()
+    public Day06() : base()
     {
-        _map = File.ReadAllText(InputFilePath).GetMap();
-        _start = _map.First(x => x.Value == '^').Key;
+        _start = map.First(x => x.Value == '^').Key;
     }
 
     public override ValueTask<string> Solve_1()
@@ -25,32 +23,32 @@ public class Day06 : TestableBaseDay
 
         var loops = 0;
 
-        foreach (var testPosition in visited.Where(pos => _map[pos] == '.'))
+        foreach (var testPosition in visited.Where(pos => map[pos] == '.'))
         {
-            _map[testPosition] = '#';
-            if (IsBlocked(_map, _start, MapExtensions.UP))
+            map[testPosition] = '#';
+            if (IsBlocked(map, _start, MapExtensions.UP))
             {
                 loops++;
             }
-            _map[testPosition] = '.';
+            map[testPosition] = '.';
         }
         return new(loops.ToString());
     }
 
-    private bool IsBlocked(Map _map, (int, int) currentPosition, (int, int) direction)
+    private bool IsBlocked(Map map, (int, int) currentPosition, (int, int) direction)
     {
         var visited = new HashSet<((int, int) position, (int,int) direction)>();
-        while (_map.ContainsKey(currentPosition) && !visited.Contains((currentPosition,direction)))
+        while (map.ContainsKey(currentPosition) && !visited.Contains((currentPosition,direction)))
         {
             visited.Add((currentPosition, direction));
 
-            if (_map.GetValueOrDefault(currentPosition.AddTuple(direction)) == '#')
+            if (map.GetValueOrDefault(AddTuple(currentPosition, direction)) == '#')
             {
                 direction = RotateClockwise(direction);
             }
             else
             {
-                currentPosition = currentPosition.AddTuple(direction);
+                currentPosition = AddTuple(currentPosition, direction);
             }
         }
 
@@ -60,17 +58,17 @@ public class Day06 : TestableBaseDay
     private HashSet<(int, int)> Walk((int,int) currentPosition, (int,int) direction)
     {
         var visited = new HashSet<(int, int)>();
-        while (_map.ContainsKey(currentPosition))
+        while (map.ContainsKey(currentPosition))
         {
             visited.Add(currentPosition);
 
-            if (_map.GetValueOrDefault(currentPosition.AddTuple(direction)) == '#')
+            if (map.GetValueOrDefault(AddTuple(currentPosition, direction)) == '#')
             {
                 direction = RotateClockwise(direction);
             }
             else
             {
-                currentPosition = currentPosition.AddTuple(direction);
+                currentPosition = AddTuple(currentPosition, direction);
             } 
         }
 
