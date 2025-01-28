@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -19,22 +20,27 @@ public class Day12 : MapableTestableBaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        var result = 0;
-        foreach(var region in regions.Values.Distinct())
-        {
-            var perimeter = 0;
-            foreach(var point in region)
-            {
-                perimeter += FindPerimeter(point);
-            }
-            result += perimeter * region.Count;
-        }
-        return new(result.ToString());
+        return Solver(FindPerimeter);
     }
 
     public override ValueTask<string> Solve_2()
     {
-        throw new NotImplementedException();
+        return Solver(FindEdge);
+    }
+
+    private ValueTask<string> Solver(Func<(int,int), int> FindSize)
+    {
+        var result = 0;
+        foreach (var region in regions.Values.Distinct())
+        {
+            var perimeter = 0;
+            foreach (var point in region)
+            {
+                perimeter += FindSize(point);
+            }
+            result += perimeter * region.Count;
+        }
+        return new(result.ToString());
     }
 
     private int FindPerimeter((int,int) point)
@@ -49,6 +55,35 @@ public class Day12 : MapableTestableBaseDay
             }
         }
         return perimeter;
+    }
+
+    private int FindEdge((int,int) point)
+    {
+        var edges = 0;
+        var value = map[point];
+
+        foreach (var (du, dv) in new[] { (MapExtensions.UP, MapExtensions.RIGHT), (MapExtensions.RIGHT, MapExtensions.DOWN), (MapExtensions.DOWN, MapExtensions.LEFT), (MapExtensions.LEFT, MapExtensions.UP) })
+        {
+            //  ..
+            //  x. convex corner
+            if (map.GetValueOrDefault(AddTuple(point, du)) != value &&
+                map.GetValueOrDefault(AddTuple(point, dv)) != value
+            )
+            {
+                edges++;
+            }
+
+            //  x.
+            //  xx concave corner
+            if (map.GetValueOrDefault(AddTuple(point, du)) == value &&
+                map.GetValueOrDefault(AddTuple(point, dv)) == value &&
+                map.GetValueOrDefault(AddTuple(point, AddTuple(du, dv))) != value
+            )
+            {
+                edges++;
+            }
+        }
+        return edges;
     }
 
     private void MapRegions(Region initialPositions)
