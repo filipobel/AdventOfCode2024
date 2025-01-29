@@ -17,12 +17,12 @@ public class Day13 : TestableBaseDay
     }
     public override ValueTask<string> Solve_1()
     {
-        return new (clawMachines.Sum(x => x.Solve()).ToString());
+        return new (clawMachines.Sum(x => x.Solve(0)).ToString());
     }
 
     public override ValueTask<string> Solve_2()
     {
-        throw new NotImplementedException();
+        return new(clawMachines.Sum(x => x.Solve(10000000000000)).ToString());
     }
 }
 
@@ -40,15 +40,17 @@ public class ClawMachine
         Prize = Regex.Matches(inputLines[2], @"\d+") switch { var a => (int.Parse(a[0].Value), int.Parse(a[1].Value)) };
     }
 
-    public long Solve()
+    public long Solve(long shift)
     {
-        if ((ButtonA.Item1 * Prize.Item2 - Prize.Item1 * ButtonA.Item2) % (ButtonA.Item1 * ButtonB.Item2 - ButtonA.Item2 * ButtonB.Item1) != 0) {
+        (long,long) tempPrize = (Prize.Item1 + shift, Prize.Item2 + shift);
+
+        if ((ButtonA.Item1 * tempPrize.Item2 - tempPrize.Item1 * ButtonA.Item2) % (ButtonA.Item1 * ButtonB.Item2 - ButtonA.Item2 * ButtonB.Item1) != 0) {
             return 0;
         }
-        long bPress = (ButtonA.Item1 * Prize.Item2 - Prize.Item1 * ButtonA.Item2) / (ButtonA.Item1 * ButtonB.Item2 - ButtonB.Item1 * ButtonA.Item2);
+        long bPress = (ButtonA.Item1 * tempPrize.Item2 - tempPrize.Item1 * ButtonA.Item2) / (ButtonA.Item1 * ButtonB.Item2 - ButtonB.Item1 * ButtonA.Item2);
 
-        if ((Prize.Item1 - bPress * ButtonB.Item1) % ButtonA.Item1 != 0) { return 0; }
-        long a = (Prize.Item1 - bPress * ButtonB.Item1) / ButtonA.Item1;
+        if ((tempPrize.Item1 - bPress * ButtonB.Item1) % ButtonA.Item1 != 0) { return 0; }
+        long a = (tempPrize.Item1 - bPress * ButtonB.Item1) / ButtonA.Item1;
 
         return 3*a+ bPress;
     }
