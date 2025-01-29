@@ -17,6 +17,7 @@ public class SampleTests
     [TestCase(typeof(Day10), "36", "81")]
     [TestCase(typeof(Day11), "55312", "65601038650482")]
     [TestCase(typeof(Day12), "1930", "1206")]
+    [TestCase(typeof(Day12), "480", "")]
     public async Task Test(Type type, string sol1, string sol2)
     {
         // Can't use BaseDay since some of them aren't days, but you probably can
