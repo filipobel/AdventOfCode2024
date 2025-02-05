@@ -11,85 +11,82 @@ record struct Robot(Vec2 pos, Vec2 vel);
 
 public class Day14 : TestableBaseDay
 {
-    private IEnumerable<Robot> _robots;
-    const int WIDTH = 101;
-    const int HEIGHT = 103;
+    const int width = 101;
+    const int height = 103;
+    private string _input;
 
     public Day14()
     {
-        _robots = from line in File.ReadAllText(InputFilePath).Split("\r\n")
-                  let numbers = Regex.Matches(line, @"-?\d+").Select(m => int.Parse(m.Value)).ToArray()
-                  select new Robot(new Vec2(numbers[0], numbers[1]), new Vec2(numbers[2], numbers[3]));
-
+        _input = File.ReadAllText(InputFilePath);
     }
 
     public override ValueTask<string> Solve_1()
     {
-        //Console.WriteLine(WriteRobots(_robots));
-        
-        Simulate(100);
-
-        var safetyScore = _robots.Select(r => GetQuadrant(r))
-            .Where(q => q.x != 0 && q.y != 0)
-            .GroupBy(quadrant => new { quadrant.x, quadrant.y })
-            .Aggregate(1, (acc, group) => acc * group.Count());
-
-        //Console.WriteLine(WriteRobots(_robots));
-
-        return new(safetyScore.ToString());
+        var testValue = PartOne(_input);
+        return new(PartOne(_input).ToString());
     }
 
-    private void Simulate(int count)
+    public override ValueTask<string> Solve_2()
     {
-        _robots = _robots.Select(r => Step(r, count));
+        return new(PartTwo(_input).ToString());
+    }
+    // run the simulation for 100 steps and count the robots in the different quadrants.
+    public object PartOne(string input) =>
+        Simulate(input)
+        .ElementAt(100)
+        .CountBy(GetQuadrant)
+        .Where(group => group.Key.x != 0 && group.Key.y != 0)
+        .Aggregate(1, (acc, group) => acc * group.Value);
+
+    // I figured that the xmas tree pattern has a long horizontal ### pattern in it
+    public object PartTwo(string input) =>
+       Simulate(input)
+        .TakeWhile(robots => !Plot(robots).Contains("#################"))
+        .Count();
+
+    // an infinite simulation of robot movement
+    IEnumerable<Robot[]> Simulate(string input)
+    {
+        var robots = Parse(input).ToArray();
+        while (true)
+        {
+            yield return robots;
+            robots = robots.Select(Step).ToArray();
+        }
     }
 
-    private Vec2 GetQuadrant(Robot robot)
+    // advance a robot by its velocity taking care of the 'teleportation'
+    Robot Step(Robot robot) => robot with { pos = AddWithWrapAround(robot.pos, robot.vel) };
+
+    // returns the direction (-1/0/1) of the robot to the center of the room
+    Vec2 GetQuadrant(Robot robot) =>
+        new Vec2(Math.Sign(robot.pos.x - width / 2), Math.Sign(robot.pos.y - height / 2));
+
+    Vec2 AddWithWrapAround(Vec2 a, Vec2 b) =>
+        new Vec2((a.x + b.x + width) % width, (a.y + b.y + height) % height);
+
+    // shows the robot locations in the room 
+    string Plot(IEnumerable<Robot> robots)
     {
-        return new Vec2(Math.Sign(robot.pos.x- WIDTH/2), Math.Sign(robot.pos.y -HEIGHT/2));
-    }
-
-    private static Robot Step(Robot robot, int totalSteps) => robot with { pos = GetPosition(robot.pos, robot.vel, totalSteps) };
-
-    private static Vec2 GetPosition(Vec2 pos, Vec2 vel, int totalSteps) =>
-        new Vec2(Mod(pos.x + totalSteps * vel.x, WIDTH), Mod(pos.y + totalSteps * vel.y,HEIGHT));
-
-    string WriteRobots(IEnumerable<Robot> robots)
-    {
-        var res = new int[HEIGHT, WIDTH];
+        var res = new char[height, width];
         foreach (var robot in robots)
         {
-            try
-            {
-                res[robot.pos.y, robot.pos.x]++;
-            }
-            catch (Exception e)
-            { 
-                var test = robot; 
-            }
+            res[robot.pos.y, robot.pos.x] = '#';
         }
         var sb = new StringBuilder();
-        for (var y = 0; y < HEIGHT; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (var x = 0; x < WIDTH; x++)
+            for (var x = 0; x < width; x++)
             {
-                sb.Append(res[y, x].ToString());
+                sb.Append(res[y, x] == '#' ? "#" : " ");
             }
             sb.AppendLine();
         }
         return sb.ToString();
     }
 
-    public override ValueTask<string> Solve_2()
-    {
-        throw new NotImplementedException();
-    }
-
-    // % operator doesnt deal well with looping and wrapped numbers
-
-    public static int Mod(int value, int divisor)
-    {
-        int r = value % divisor;
-        return r < 0 ? r + divisor : r;
-    }
+    IEnumerable<Robot> Parse(string input) =>
+        from line in input.Split("\n")
+        let nums = Regex.Matches(line, @"-?\d+").Select(m => int.Parse(m.Value)).ToArray()
+        select new Robot(new Vec2(nums[0], nums[1]), new Vec2(nums[2], nums[3]));
 }
